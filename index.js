@@ -1,11 +1,16 @@
 const readline = require('readline-sync')
+const robots = {
+  text: require('./robots/text.js')
+}
 
-function start() {
+async function start() {
   const content = {}
   
   content.searchTerm = askReturnSearchTerm()
   content.prefix = askReturnPrefix()
-	
+
+  await robots.text(content)
+
   function askReturnSearchTerm() {
     return readline.question('Type a Winkpedia search term: ')
   }
