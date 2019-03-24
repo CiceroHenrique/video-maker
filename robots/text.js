@@ -1,4 +1,4 @@
-t algorithmia = require('algorithmia')
+const algorithmia = require('algorithmia')
 const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey
 const sentenceBoundaryDetection = require('sbd')
 
@@ -61,6 +61,37 @@ async function robot(content) {
         text: sentence,
         keywords: [],
         images: []
+      })
+    })
+  }
+
+  function limitMaximumSentences(content) {
+    content.sentences = content.sentences.slice(0, content.maximumSentences)
+  }
+  
+  async function fetchKeywordsOfAllSentences(content) {
+    for (const sentence of content.sentences) {
+      sentence.keywords = await fetchWatsonAndReturnKeywords(sentence.text)
+    }
+  }
+
+  async function fetchWatsonAndReturnKeywords(sentence) {
+    return new Promise((resolve, reject)=> {
+      nlu.analyze({
+        text: sentence,
+        features: {
+          keywords: {}
+        }
+      }, (error, response) => {
+        if(error) {
+          throw error
+        }
+
+        const keywords = response.keywords.map((keyword) => {
+          return keyword.text
+        })
+
+        resolve(keywords)
       })
     })
   }
